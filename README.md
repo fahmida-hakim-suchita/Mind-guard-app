@@ -1,22 +1,21 @@
-# Mind-guard-app
-A Smart Assistant System for Alzheimer’s to predicted speakers voice and recognize identifications. 
-# 🧠 Mind Guard – Smart Assistant for Alzheimer’s Patients
+# MindGuard - Smart Voice Recognition System
 
-This is a **Streamlit-based speaker identification system** developed for the *Mind Guard* project.  
-The system identifies which known speaker is speaking using a CNN model trained on MFCC voice features.
+MindGuard is a **smart voice recognition system** designed to assist **Alzheimer's patients**.  
+It identifies the speaker from voice recordings, helping caregivers and family members monitor patients more efficiently.
 
-## 🚀 Features
-- Upload `.wav` audio files
-- Predicts speaker identity
-- Shows confidence score
-- Built with TensorFlow, Librosa, and Streamlit
+---
 
-## 🧩 Tech Stack
-- Python 3
-- TensorFlow / Keras
-- Librosa (audio feature extraction)
-- Streamlit (UI framework)
+## Features
+- Real-time **speaker identification** using a trained **TensorFlow Lite model**.
+- **Three speaker classes:** Family, Friends, Unknown.
+- **Mobile-friendly, 3-part interface:** Upload → Prediction → Result.
+- Error-handling for audio uploads.
+- Easy deployment on **Streamlit Cloud**.
 
-## 🧠 Usage
+---
+
+## Installation (Local)
+1. Clone the repository:
 ```bash
-streamlit run app.py
+git clone https://github.com/yourusername/MindGuard-App.git
+cd MindGuard-App
