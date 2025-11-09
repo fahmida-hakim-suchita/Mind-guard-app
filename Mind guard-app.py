@@ -1,46 +1,36 @@
 import streamlit as st
-import librosa
-import numpy as np
 import tensorflow as tf
-import soundfile as sf
+import numpy as np
+import librosa
 
-# --- Load trained model ---
-model = tf.keras.models.load_model("speaker_model.h5")
+st.title("🎙️ MindGuard – Smart Voice Recognition System")
 
-# --- Feature Extraction ---
-def extract_features(file_path):
-    audio, sample_rate = librosa.load(file_path, res_type='kaiser_fast')
-    mfccs = np.mean(librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40).T, axis=0)
-    return mfccs
+# Load TFLite model
+interpreter = tf.lite.Interpreter(model_path="speaker_model.tflite")
+interpreter.allocate_tensors()
 
-# --- Prediction Function ---
-def predict_speaker(file_path):
-    feature = extract_features(file_path)
-    feature = np.expand_dims(feature, axis=0)
-    prediction = model.predict(feature)
-    speaker_idx = np.argmax(prediction)
-    confidence = np.max(prediction)
-    return speaker_idx, confidence
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
-# --- Streamlit UI ---
-st.set_page_config(page_title="Mind Guard", page_icon="🧠", layout="centered")
+st.write("✅ Model loaded successfully (TFLite version).")
 
-st.title("🧠 Mind Guard – Smart Speaker Identification System")
-st.write("Upload a voice file (.wav) to identify the speaker.")
-
-uploaded_file = st.file_uploader("🎵 Upload a voice file", type=["wav"])
+# Upload audio file
+uploaded_file = st.file_uploader("Upload a voice sample (.wav format):", type=["wav"])
 
 if uploaded_file is not None:
     st.audio(uploaded_file, format="audio/wav")
+    st.write("Analyzing voice...")
 
-    # Save temp file
-    with open("temp_audio.wav", "wb") as f:
-        f.write(uploaded_file.getbuffer())
+    # Convert audio to MFCC (feature extraction)
+    y, sr = librosa.load(uploaded_file, sr=16000)
+    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=40)
+    mfcc = np.mean(mfcc.T, axis=0)
+    mfcc = np.expand_dims(mfcc, axis=0).astype(np.float32)
 
-    st.write("Analyzing voice... 🔍")
-    speaker_idx, conf = predict_speaker("temp_audio.wav")
+    # Run inference
+    interpreter.set_tensor(input_details[0]['index'], mfcc)
+    interpreter.invoke()
+    prediction = interpreter.get_tensor(output_details[0]['index'])
+    pred_label = np.argmax(prediction)
 
-    st.success(f"✅ Speaker Identified: Class {speaker_idx}")
-    st.info(f"Confidence: {conf*100:.2f}%")
-
-    st.balloons()
+    st.success(f"🧠 Predicted Speaker ID: {pred_label}")
