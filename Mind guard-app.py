@@ -32,7 +32,7 @@ output_details = interpreter.get_output_details()
 # --------------------------
 # 3. SPEAKER LABELS
 # --------------------------
-speaker_classes = {0: "Known", 1: "Family", 2: "Unknown"}
+speaker_classes = {1: "Family", 2: "Friends",  3: "Unknown"}
 
 # --------------------------
 # 4. MFCC FEATURE EXTRACTION (FIXED SHAPE)
@@ -83,3 +83,4 @@ if uploaded_file is not None:
         st.error(str(e))
 else:
     st.info("Please upload a .wav file to begin prediction.")
+
