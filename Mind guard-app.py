@@ -1,98 +1,85 @@
-# -----------------------------
-# MindGuard-app.py cell: Streamlit app
-
 import streamlit as st
 import tensorflow as tf
 import numpy as np
 import librosa
-import os
 import io
 
-# -----------------------------
-st.set_page_config(page_title="MindGuard Voice Recognition", layout="centered")
+# --------------------------
+# 1. APP HEADER
+# --------------------------
+st.set_page_config(page_title="MindGuard - Voice Recognition", layout="centered")
 
-st.markdown("<h1 style='text-align: center;'>MindGuard - Smart Voice Recognition System</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Identify speakers to assist Alzheimer's patients.</p>", unsafe_allow_html=True)
+st.title("MindGuard - Smart Voice Recognition System")
+st.subheader("Identify speakers to assist Alzheimer's patients.")
 st.markdown("---")
 
-# Load TFLite model
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "speaker_model.tflite")
+# --------------------------
+# 2. LOAD MODEL
+# --------------------------
+MODEL_PATH = "speaker_model.tflite"
+
 try:
     interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
     interpreter.allocate_tensors()
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
     st.success("Model loaded successfully.")
 except Exception as e:
-    st.error(f"Error loading the model: {e}")
+    st.error(f"Error loading model: {e}")
+    st.stop()
 
-# Class mapping
-speaker_classes = {0: "family", 1: "known", 2: "unknown"}
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
-# MFCC extraction for uploaded audio
-def extract_mfcc_strict(file_obj, sr=16000, n_mfcc=40, duration=2.0, n_fft=2048):
-    if isinstance(file_obj, io.BytesIO) or hasattr(file_obj, 'read'):
-        audio, _ = librosa.load(file_obj, sr=sr)
-    else:
-        audio, _ = librosa.load(file_obj, sr=sr)
+# --------------------------
+# 3. SPEAKER LABELS
+# --------------------------
+speaker_classes = {0: "Known", 1: "Family", 2: "Unknown"}
 
-    max_samples = int(sr * duration)
-    if len(audio) < max_samples:
-        audio = np.pad(audio, (0, max_samples - len(audio)), mode='constant')
-    else:
-        audio = audio[:max_samples]
+# --------------------------
+# 4. MFCC FEATURE EXTRACTION (FIXED SHAPE)
+# --------------------------
+def extract_mfcc_fixed(file_obj, sr=16000, n_mfcc=40, fixed_frames=200):
+    # Load and resample audio
+    audio, _ = librosa.load(file_obj, sr=sr)
+    mfcc = librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=n_mfcc)
 
-    hop_length = (len(audio) - n_fft) // 199  # 200 frames total
-    mfcc = librosa.feature.mfcc(y=audio, sr=sr, n_mfcc=n_mfcc, hop_length=hop_length, n_fft=n_fft)
+    # Force shape to (n_mfcc, fixed_frames)
+    if mfcc.shape[1] < fixed_frames:
+        pad_width = fixed_frames - mfcc.shape[1]
+        mfcc = np.pad(mfcc, ((0, 0), (0, pad_width)), mode='constant')
+    elif mfcc.shape[1] > fixed_frames:
+        mfcc = mfcc[:, :fixed_frames]
 
+    # Ensure (1, 40, 200, 1)
     mfcc = np.expand_dims(mfcc, axis=-1)
     mfcc = np.expand_dims(mfcc, axis=0)
     return mfcc.astype(np.float32)
 
-# -----------------------------
-# PART 1: Upload audio
-st.header("1️⃣ Upload Voice Sample")
+# --------------------------
+# 5. STREAMLIT UI
+# --------------------------
+st.markdown("### 1. Upload Voice Sample")
 uploaded_file = st.file_uploader("Choose a .wav file", type=["wav"])
 
-# PART 2: Running Prediction placeholder
-st.header("2️⃣ Running Prediction")
-prediction_placeholder = st.empty()
-prediction_placeholder.info("Upload a file to start prediction...")
+st.markdown("### 2. Running Prediction")
+status_box = st.empty()
 
-# PART 3: Prediction Result placeholder
-st.header("3️⃣ Prediction Result")
-result_placeholder = st.empty()
+st.markdown("### 3. Prediction Result")
 
-# -----------------------------
 if uploaded_file is not None:
-    st.audio(uploaded_file, format="audio/wav")
-    prediction_placeholder.info("Processing audio...")
-
     try:
-        mfcc = extract_mfcc_strict(uploaded_file)
-        interpreter.set_tensor(input_details[0]['index'], mfcc)
+        status_box.info("Processing audio...")
+
+        mfcc_input = extract_mfcc_fixed(uploaded_file)
+        interpreter.set_tensor(input_details[0]['index'], mfcc_input)
         interpreter.invoke()
         prediction = interpreter.get_tensor(output_details[0]['index'])
-        predicted_index = np.argmax(prediction)
-        predicted_speaker = speaker_classes.get(predicted_index, "unknown")
-        confidence = np.max(prediction)
+        predicted_class = np.argmax(prediction)
 
-        prediction_placeholder.success("Audio processed successfully!")
-
-        result_placeholder.markdown(
-            f"""
-            <div style='border: 2px solid #4CAF50; padding: 20px; border-radius: 10px; text-align: center; background-color: #f9f9f9;'>
-                <h3>Predicted Speaker</h3>
-                <p><b>Name:</b> {predicted_speaker}</p>
-                <p><b>Confidence:</b> {confidence:.2f}</p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        status_box.success("Prediction completed successfully.")
+        st.success(f"Predicted Speaker: {speaker_classes[predicted_class]}")
 
     except Exception as e:
-        prediction_placeholder.error("Error processing the audio file.")
-        result_placeholder.error(f"{e}")
-
-st.markdown("---")
-st.caption("MindGuard - Alzheimer's Smart Assistant | Developed by Suchita")
+        status_box.error("Error processing the audio file.")
+        st.error(str(e))
+else:
+    st.info("Please upload a .wav file to begin prediction.")
