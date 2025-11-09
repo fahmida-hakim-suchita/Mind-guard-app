@@ -21,8 +21,8 @@ try:
 except Exception as e:
     st.error(f"Error loading the model: {e}")
 
-# Map class indices to speaker names
-speaker_classes = {0: "Suchita", 1: "Mentor", 2: "Unknown"}
+# Map class indices to dataset labels
+speaker_classes = {0: "family", 1: "known", 2: "unknown"}
 
 # Upload audio file
 uploaded_file = st.file_uploader("Upload a voice sample (.wav format):", type=["wav"])
@@ -43,7 +43,7 @@ if uploaded_file is not None:
         interpreter.invoke()
         prediction = interpreter.get_tensor(output_details[0]['index'])
         predicted_index = np.argmax(prediction)
-        predicted_speaker = speaker_classes.get(predicted_index, "Unknown")
+        predicted_speaker = speaker_classes.get(predicted_index, "unknown")
 
         # Display result
         st.write("Prediction Result:")
