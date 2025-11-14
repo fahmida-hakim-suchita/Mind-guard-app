@@ -123,3 +123,4 @@ else:
 # Footer
 # --------------------------
 st.markdown('<div class="footer">© 2025 MindGuard | Designed by Suchita</div>', unsafe_allow_html=True)
+
