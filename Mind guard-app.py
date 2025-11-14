@@ -68,35 +68,35 @@ def extract_mfcc(file_path, n_mfcc=40, target_frames=200, sr=16000):
 left_col, right_col = st.columns([1, 1])
 
 # --------------------------
-# LEFT COLUMN (UPLOAD + PREDICT)
+# LEFT COLUMN (UPLOAD)
 # --------------------------
 with left_col:
     st.markdown('<div class="section"><h4>1️⃣ Upload Voice Sample</h4>', unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Choose a .wav file", type=["wav"])
     st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown('<div class="section"><h4>2️⃣ Run Prediction</h4>', unsafe_allow_html=True)
-    run_button = st.button("🔍 Predict Speaker")
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # --------------------------
 # RIGHT COLUMN (RESULT)
 # --------------------------
 with right_col:
-    st.markdown('<div class="section"><h4>3️⃣ Prediction Result</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="section"><h4>2️⃣ Prediction Result</h4>', unsafe_allow_html=True)
     result_box = st.empty()
     st.markdown("</div>", unsafe_allow_html=True)
 
 # --------------------------
-# PREDICTION LOGIC
+# AUTO PREDICTION LOGIC
 # --------------------------
-if run_button and uploaded_file is not None:
+if uploaded_file is not None:
     try:
+        # Save the uploaded audio to temp file
         with open("temp.wav", "wb") as f:
             f.write(uploaded_file.read())
 
+        # Extract MFCC
         mfcc_input = extract_mfcc("temp.wav")
 
+        # Resize & Predict
         interpreter.resize_tensor_input(input_details[0]['index'], mfcc_input.shape)
         interpreter.allocate_tensors()
 
@@ -106,13 +106,17 @@ if run_button and uploaded_file is not None:
         prediction = interpreter.get_tensor(output_details[0]['index'])
         predicted_class = np.argmax(prediction)
 
-        result_box.markdown(f'<div class="result-box">Predicted Speaker:<br>{speaker_classes[predicted_class]}</div>', unsafe_allow_html=True)
+        # Show Result
+        result_box.markdown(
+            f'<div class="result-box">Predicted Speaker:<br>{speaker_classes[predicted_class]}</div>',
+            unsafe_allow_html=True
+        )
 
     except Exception as e:
         result_box.error(f"❌ Error: {e}")
 
-elif run_button:
-    result_box.warning("Please upload a .wav file first!")
+else:
+    result_box.info("Upload a voice sample to see auto prediction.")
 
 # --------------------------
 # Footer
