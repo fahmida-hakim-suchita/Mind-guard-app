@@ -52,7 +52,7 @@ def header_bg(image_path):
     )
 
 
-header_bg("alzheimer.jpg")
+header_bg("Alzheimer's.jpg")
 
 
 # -----------------------------------------------------
@@ -191,4 +191,5 @@ st.markdown(
     '<div class="footer">© 2025 MindGuard | Designed by Suchita</div>',
     unsafe_allow_html=True,
 )
+
 
