@@ -70,18 +70,18 @@ left, right = st.columns([1, 1])
 # -------------------------- LEFT COLUMN --------------------------
 with left:
     # Upload section
-    st.markdown('<div class="section"><h4>📤 1️⃣ Upload Voice Sample</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="section"><h4> 1️⃣ Upload Voice Sample</h4>', unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Choose a .wav file", type=["wav"])
     st.markdown("</div>", unsafe_allow_html=True)
 
     # Running section
-    st.markdown('<div class="section"><h4>⚙️ 2️⃣ Running Prediction</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="section"><h4> 2️⃣ Running Prediction</h4>', unsafe_allow_html=True)
     running_box = st.empty()
     st.markdown("</div>", unsafe_allow_html=True)
 
 # -------------------------- RIGHT COLUMN --------------------------
 with right:
-    st.markdown('<div class="section"><h4>🎯 3️⃣ Prediction Result</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="section"><h4> 3️⃣ Prediction Result</h4>', unsafe_allow_html=True)
     result_box = st.empty()
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -123,3 +123,4 @@ else:
 # Footer
 # -----------------------------------------------------
 st.markdown('<div class="footer">© 2025 MindGuard | Designed by Suchita</div>', unsafe_allow_html=True)
+
