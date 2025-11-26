@@ -31,7 +31,7 @@ def add_bg(image_path):
     )
 
 # Load background
-add_bg("alzheimer.jpg")
+add_bg("Alzheimer.jpeg")
 
 # -----------------------------------------------------
 # CSS Styling
@@ -68,7 +68,7 @@ st.markdown("""
 # -----------------------------------------------------
 st.markdown("""
 <div class="header-img">
-    <div class="main-title">🧠 MindGuard - Smart Voice Recognition System</div>
+    <div class="main-title"> MindGuard - Smart Voice Recognition System</div>
     <div class="subtitle">Identify speakers to assist Alzheimer's patients.</div>
 </div>
 """, unsafe_allow_html=True)
@@ -113,20 +113,20 @@ def extract_mfcc(file_path, n_mfcc=40, target_frames=200, sr=16000):
 left, right = st.columns([1, 1])
 
 with left:
-    st.markdown('<div class="section"><h4>📤 Upload Voice Sample</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="section"><h4> Upload Voice Sample</h4>', unsafe_allow_html=True)
     uploaded_file = st.file_uploader("Choose a .wav file", type=["wav"])
     st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown('<div class="section"><h4>🎤 Record Voice</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="section"><h4> Record Voice</h4>', unsafe_allow_html=True)
     recorded_audio = st.audio_input("Record your voice (WAV auto)")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown('<div class="section"><h4>⚙️ Processing</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="section"><h4> Processing</h4>', unsafe_allow_html=True)
     running_box = st.empty()
     st.markdown("</div>", unsafe_allow_html=True)
 
 with right:
-    st.markdown('<div class="section"><h4>🎯 Prediction Result</h4>', unsafe_allow_html=True)
+    st.markdown('<div class="section"><h4> Prediction Result</h4>', unsafe_allow_html=True)
     result_box = st.empty()
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -177,3 +177,4 @@ else:
 # Footer
 # -----------------------------------------------------
 st.markdown('<div class="footer">© 2025 MindGuard | Designed by Suchita</div>', unsafe_allow_html=True)
+
